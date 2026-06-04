@@ -19,9 +19,7 @@ export default function PaginaDelCarrito() {
   } = useCarritoStore();
 
   useEffect(() => {
-    if (esta_logueado) {
-      traer_carrito_del_servidor();
-    }
+    if (esta_logueado) traer_carrito_del_servidor();
   }, [esta_logueado]);
 
   if (!esta_logueado) {
@@ -32,7 +30,7 @@ export default function PaginaDelCarrito() {
         </p>
         <Link
           href="/login"
-          className="bg-orange-500 text-white font-bold px-6 py-2 rounded-xl hover:bg-orange-600 transition"
+          className="bg-blue-700 text-white font-bold px-6 py-2 rounded-xl hover:bg-blue-800 transition"
         >
           Iniciar sesión
         </Link>
@@ -45,7 +43,7 @@ export default function PaginaDelCarrito() {
   }
 
   return (
-    <div>
+    <div className="pb-20">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Tu carrito</h1>
 
       {articulos_en_el_carrito.length === 0 ? (
@@ -54,7 +52,7 @@ export default function PaginaDelCarrito() {
           <p className="text-xl text-gray-500 mb-4">Tu carrito está vacío</p>
           <Link
             href="/catalogo"
-            className="bg-orange-500 text-white font-bold px-6 py-2 rounded-xl hover:bg-orange-600 transition"
+            className="bg-blue-700 text-white font-bold px-6 py-2 rounded-xl hover:bg-blue-800 transition"
           >
             Ver productos
           </Link>
@@ -69,12 +67,10 @@ export default function PaginaDelCarrito() {
                 key={articulo_del_carrito.id_variante}
                 className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-4"
               >
-                {/* Emoji del producto */}
-                <div className="bg-orange-50 rounded-lg w-16 h-16 flex items-center justify-center shrink-0">
-                  <span className="text-3xl">🍊</span>
+                <div className="bg-blue-50 rounded-lg w-16 h-16 flex items-center justify-center shrink-0">
+                  <span className="text-3xl">🖥️</span>
                 </div>
 
-                {/* Info del item */}
                 <div className="flex-1">
                   <p className="font-semibold text-gray-800">
                     {articulo_del_carrito.nombre_producto}
@@ -87,9 +83,8 @@ export default function PaginaDelCarrito() {
                   </p>
                 </div>
 
-                {/* Precio y cantidad */}
                 <div className="text-right shrink-0">
-                  <p className="font-bold text-orange-500">
+                  <p className="font-bold text-blue-700">
                     Gs. {articulo_del_carrito.subtotal.toLocaleString('es-PY')}
                   </p>
                   <p className="text-sm text-gray-400">
@@ -97,7 +92,6 @@ export default function PaginaDelCarrito() {
                   </p>
                 </div>
 
-                {/* Botón quitar */}
                 <button
                   onClick={() => quitar_del_carrito(articulo_del_carrito.id_variante)}
                   className="text-red-400 hover:text-red-600 transition text-sm ml-2"
@@ -107,7 +101,6 @@ export default function PaginaDelCarrito() {
               </div>
             ))}
 
-            {/* Botón vaciar carrito */}
             <button
               onClick={vaciar_carrito_completo}
               className="text-sm text-red-400 hover:text-red-600 hover:underline transition"
@@ -119,9 +112,7 @@ export default function PaginaDelCarrito() {
           {/* Resumen del pedido */}
           <div className="w-full lg:w-80 shrink-0">
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-              <h2 className="font-bold text-gray-800 text-lg mb-4">
-                Resumen del pedido
-              </h2>
+              <h2 className="font-bold text-gray-800 text-lg mb-4">Resumen del pedido</h2>
 
               <div className="space-y-2 mb-4">
                 {articulos_en_el_carrito.map((articulo_del_resumen) => (
@@ -138,7 +129,7 @@ export default function PaginaDelCarrito() {
               <div className="border-t border-gray-100 pt-4 mb-6">
                 <div className="flex justify-between font-bold text-gray-800">
                   <span>Total</span>
-                  <span className="text-orange-500">
+                  <span className="text-blue-700">
                     Gs. {precio_total_en_gs.toLocaleString('es-PY')}
                   </span>
                 </div>
@@ -146,7 +137,7 @@ export default function PaginaDelCarrito() {
 
               <button
                 onClick={() => router.push('/checkout')}
-                className="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition"
+                className="w-full bg-blue-700 text-white font-bold py-3 rounded-xl hover:bg-blue-800 transition"
               >
                 Confirmar pedido →
               </button>

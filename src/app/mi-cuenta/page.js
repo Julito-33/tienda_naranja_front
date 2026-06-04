@@ -16,7 +16,6 @@ export default function PaginaDeMiCuenta() {
   useEffect(() => {
     if (parametros.get('compra') === 'exitosa') {
       set_compra_exitosa(true);
-      // Ocultamos el mensaje después de 5 segundos
       setTimeout(() => set_compra_exitosa(false), 5000);
     }
   }, []);
@@ -32,7 +31,6 @@ export default function PaginaDeMiCuenta() {
         set_cargando_ordenes(false);
       }
     };
-
     if (esta_logueado) traer_mis_ordenes();
   }, [esta_logueado]);
 
@@ -41,10 +39,9 @@ export default function PaginaDeMiCuenta() {
       const respuesta = await clienteHttp.get(`/api/facturas/${id_de_la_orden}/`, {
         responseType: 'blob',
       });
-
-      const url_del_archivo = window.URL.createObjectURL(new Blob([respuesta.data]));
+      const url_del_archivo    = window.URL.createObjectURL(new Blob([respuesta.data]));
       const enlace_de_descarga = document.createElement('a');
-      enlace_de_descarga.href = url_del_archivo;
+      enlace_de_descarga.href  = url_del_archivo;
       enlace_de_descarga.setAttribute('download', `factura_orden_${id_de_la_orden}.pdf`);
       document.body.appendChild(enlace_de_descarga);
       enlace_de_descarga.click();
@@ -59,7 +56,7 @@ export default function PaginaDeMiCuenta() {
       pendiente:  'bg-yellow-100 text-yellow-700',
       pagada:     'bg-green-100 text-green-700',
       preparando: 'bg-blue-100 text-blue-700',
-      enviada:    'bg-purple-100 text-purple-700',
+      enviada:    'bg-indigo-100 text-indigo-700',
       entregada:  'bg-gray-100 text-gray-700',
       cancelada:  'bg-red-100 text-red-700',
     };
@@ -75,7 +72,7 @@ export default function PaginaDeMiCuenta() {
   }
 
   return (
-    <div>
+    <div className="pb-20">
 
       {/* Mensaje de compra exitosa */}
       {compra_exitosa && (
@@ -88,10 +85,10 @@ export default function PaginaDeMiCuenta() {
         </div>
       )}
 
-      {/* Encabezado de mi cuenta */}
+      {/* Encabezado */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-6">
         <div className="flex items-center gap-4">
-          <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold text-orange-500">
+          <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center text-2xl font-bold text-blue-700">
             {usuario_autenticado?.first_name?.charAt(0)}
           </div>
           <div>
@@ -99,7 +96,7 @@ export default function PaginaDeMiCuenta() {
               {usuario_autenticado?.full_name}
             </h1>
             <p className="text-sm text-gray-500">{usuario_autenticado?.email}</p>
-            <p className="text-xs text-orange-500 mt-1 capitalize">
+            <p className="text-xs text-blue-600 mt-1 capitalize">
               {usuario_autenticado?.role === 'admin' ? '👑 Administrador' : '🛍 Cliente'}
             </p>
           </div>
@@ -139,7 +136,6 @@ export default function PaginaDeMiCuenta() {
                 </span>
               </div>
 
-              {/* Items de la orden */}
               <div className="space-y-1 mb-3">
                 {orden_de_la_lista.items_de_la_orden?.map((item_de_la_orden) => (
                   <p key={item_de_la_orden.id} className="text-sm text-gray-600">
@@ -149,15 +145,13 @@ export default function PaginaDeMiCuenta() {
               </div>
 
               <div className="flex items-center justify-between">
-                <p className="font-bold text-orange-500">
+                <p className="font-bold text-blue-700">
                   Gs. {orden_de_la_lista.total_en_gs.toLocaleString('es-PY')}
                 </p>
-
-                {/* Botón descargar factura solo si está pagada */}
                 {['pagada', 'preparando', 'enviada', 'entregada'].includes(orden_de_la_lista.estado) && (
                   <button
                     onClick={() => descargar_factura(orden_de_la_lista.id)}
-                    className="text-sm text-orange-500 hover:underline flex items-center gap-1"
+                    className="text-sm text-blue-600 hover:underline flex items-center gap-1"
                   >
                     📄 Descargar factura
                   </button>
