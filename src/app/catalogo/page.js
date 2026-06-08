@@ -27,6 +27,11 @@ export default function PaginaDeCatalogo() {
 
   const [categoria_elegida, set_categoria_elegida] = useState(parametros_de_url.get('categoria') || '');
 
+// Detecta cuando cambia el parámetro de la URL desde el Navbar
+useEffect(() => {
+  set_categoria_elegida(parametros_de_url.get('categoria') || '');
+}, [parametros_de_url]);
+
 // Detecta cuando cambia el parámetro de la URL (ej: al hacer click en Procesadores desde el Navbar)
 useEffect(() => {
   set_categoria_elegida(parametros_de_url.get('categoria') || '');
