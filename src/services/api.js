@@ -27,7 +27,12 @@ clienteHttp.interceptors.request.use((configuracion_del_request) => {
 clienteHttp.interceptors.response.use(
   (respuesta_exitosa) => respuesta_exitosa,
   (error_del_servidor) => {
-    if (error_del_servidor.response?.status === 401) {
+    const url_del_request = error_del_servidor.config?.url || '';
+    const es_endpoint_de_login = url_del_request.includes('/api/usuarios/login/');
+
+    // Solo redirigir si el 401 NO viene del login
+    // Si viene del login, es credenciales incorrectas, no sesion vencida
+    if (error_del_servidor.response?.status === 401 && !es_endpoint_de_login) {
       localStorage.removeItem('token_de_acceso');
       localStorage.removeItem('token_de_refresco');
       window.location.href = '/login';

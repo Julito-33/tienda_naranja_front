@@ -39,7 +39,7 @@ const useAuthStore = create((set) => ({
       set({ cargando_sesion: false });
       return {
         exito:   false,
-        mensaje: error_en_login.response?.data?.detail || 'Email o contraseña incorrectos'
+        mensaje: 'Email o contraseña incorrectos'
       };
     }
   },
