@@ -194,26 +194,47 @@ export default function PaginaDeProducto() {
         </div>
       </div>
 
-      {/* Reseñas */}
+     {/* Reseñas */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <h2 className="text-xl font-bold text-gray-800 mb-6">
           Reseñas de clientes
           {resenas_del_producto.total_de_resenas > 0 && (
-            <span className="ml-2 text-blue-600">
+            <span className="ml-2 text-blue-600 text-base font-normal">
               ⭐ {resenas_del_producto.promedio_de_estrellas} ({resenas_del_producto.total_de_resenas} reseñas)
             </span>
           )}
         </h2>
 
+        {/* Formulario para escribir reseña */}
+        {esta_logueado && (
+          <FormularioDeResena
+            slug={slug}
+            on_resena_enviada={() => {
+              clienteHttp.get(`/api/resenas/${slug}/`).then(r => set_resenas_del_producto(r.data));
+            }}
+          />
+        )}
+
+        {/* Lista de reseñas */}
         {resenas_del_producto.total_de_resenas === 0 ? (
-          <p className="text-gray-400 text-sm">Este producto todavía no tiene reseñas. ¡Sé el primero en opinar!</p>
+          <p className="text-gray-400 text-sm mt-4">
+            Este producto todavía no tiene reseñas. ¡Sé el primero en opinar!
+          </p>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 mt-6">
             {resenas_del_producto.resenas?.map((resena_de_la_lista) => (
-              <div key={resena_de_la_lista.id} className="border border-gray-100 rounded-xl p-4">
+              <div key={resena_de_la_lista.id}
+                className="border border-gray-100 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <p className="font-medium text-gray-800">{resena_de_la_lista.nombre_del_autor}</p>
-                  <p className="text-yellow-500">{'⭐'.repeat(resena_de_la_lista.calificacion)}</p>
+                  <div className="flex gap-0.5">
+                    {[1,2,3,4,5].map(estrella => (
+                      <span key={estrella}
+                        className={`text-lg ${estrella <= resena_de_la_lista.calificacion ? 'text-yellow-400' : 'text-gray-200'}`}>
+                        ★
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <p className="font-medium text-gray-700 text-sm mb-1">{resena_de_la_lista.titulo_de_la_resena}</p>
                 <p className="text-gray-500 text-sm">{resena_de_la_lista.cuerpo_de_la_resena}</p>
@@ -222,6 +243,157 @@ export default function PaginaDeProducto() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// Componente del formulario de reseña con estrellas interactivas
+function FormularioDeResena({ slug, on_resena_enviada }) {
+  const [calificacion_hover,   set_calificacion_hover]   = useState(0);
+  const [calificacion_elegida, set_calificacion_elegida] = useState(0);
+  const [titulo_de_resena,     set_titulo_de_resena]     = useState('');
+  const [texto_de_resena,      set_texto_de_resena]      = useState('');
+  const [enviando_resena,      set_enviando_resena]      = useState(false);
+  const [mensaje_resultado,    set_mensaje_resultado]    = useState('');
+  const [es_error_resena,      set_es_error_resena]      = useState(false);
+  const [formulario_abierto,   set_formulario_abierto]   = useState(false);
+
+  const etiquetas_de_estrellas = ['', 'Muy malo', 'Malo', 'Regular', 'Bueno', 'Excelente'];
+
+  const enviar_resena = async () => {
+    if (calificacion_elegida === 0) {
+      set_es_error_resena(true);
+      set_mensaje_resultado('Seleccioná una calificación');
+      return;
+    }
+    if (!titulo_de_resena.trim() || !texto_de_resena.trim()) {
+      set_es_error_resena(true);
+      set_mensaje_resultado('Completá el título y el comentario');
+      return;
+    }
+
+    try {
+      set_enviando_resena(true);
+      await clienteHttp.post('/api/resenas/crear/', {
+        producto_slug:      slug,
+        calificacion:       calificacion_elegida,
+        titulo_de_la_resena:  titulo_de_resena,
+        cuerpo_de_la_resena:  texto_de_resena,
+      });
+      set_es_error_resena(false);
+      set_mensaje_resultado('¡Reseña enviada! Será visible una vez que sea aprobada.');
+      set_calificacion_elegida(0);
+      set_titulo_de_resena('');
+      set_texto_de_resena('');
+      set_formulario_abierto(false);
+      on_resena_enviada();
+    } catch (error_al_enviar) {
+      set_es_error_resena(true);
+      set_mensaje_resultado(
+        error_al_enviar.response?.data?.error ||
+        error_al_enviar.response?.data?.non_field_errors?.[0] ||
+        'Ya enviaste una reseña para este producto'
+      );
+    } finally {
+      set_enviando_resena(false);
+    }
+  };
+
+  return (
+    <div className="border border-blue-100 rounded-xl overflow-hidden mb-4">
+
+      {/* Header del formulario */}
+      <button
+        onClick={() => set_formulario_abierto(!formulario_abierto)}
+        className="w-full flex items-center justify-between px-5 py-4 bg-blue-50 hover:bg-blue-100 transition"
+      >
+        <span className="font-medium text-blue-700">✏️ Escribir una reseña</span>
+        <span className="text-blue-500 text-lg">{formulario_abierto ? '▲' : '▼'}</span>
+      </button>
+
+      {/* Cuerpo del formulario */}
+      {formulario_abierto && (
+        <div className="p-5 space-y-4">
+
+          {/* Selector de estrellas */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Tu calificación</p>
+            <div className="flex items-center gap-1">
+              {[1,2,3,4,5].map((estrella) => (
+                <button
+                  key={estrella}
+                  type="button"
+                  onClick={() => set_calificacion_elegida(estrella)}
+                  onMouseEnter={() => set_calificacion_hover(estrella)}
+                  onMouseLeave={() => set_calificacion_hover(0)}
+                  className="text-4xl transition-transform hover:scale-110 focus:outline-none"
+                >
+                  <span className={
+                    estrella <= (calificacion_hover || calificacion_elegida)
+                      ? 'text-yellow-400'
+                      : 'text-gray-200'
+                  }>★</span>
+                </button>
+              ))}
+              {(calificacion_hover || calificacion_elegida) > 0 && (
+                <span className="ml-2 text-sm text-gray-500 font-medium">
+                  {etiquetas_de_estrellas[calificacion_hover || calificacion_elegida]}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Título */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+            <input
+              type="text"
+              value={titulo_de_resena}
+              onChange={(e) => set_titulo_de_resena(e.target.value)}
+              placeholder="Resumí tu experiencia en una frase"
+              maxLength={100}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* Comentario */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Comentario</label>
+            <textarea
+              value={texto_de_resena}
+              onChange={(e) => set_texto_de_resena(e.target.value)}
+              placeholder="Contá tu experiencia con el producto..."
+              rows={4}
+              maxLength={500}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+            />
+            <p className="text-xs text-gray-400 mt-1 text-right">
+              {texto_de_resena.length}/500
+            </p>
+          </div>
+
+          {/* Mensaje de resultado */}
+          {mensaje_resultado && (
+            <div className={`text-sm px-4 py-2 rounded-lg flex items-center gap-2 ${
+              es_error_resena
+                ? 'bg-red-50 border border-red-200 text-red-600'
+                : 'bg-green-50 border border-green-200 text-green-600'
+            }`}>
+              <span>{es_error_resena ? '⚠️' : '✅'}</span>
+              <span>{mensaje_resultado}</span>
+            </div>
+          )}
+
+          {/* Botón enviar */}
+          <button
+            onClick={enviar_resena}
+            disabled={enviando_resena}
+            className="w-full bg-blue-700 text-white font-bold py-2 rounded-lg hover:bg-blue-800 transition disabled:opacity-50"
+          >
+            {enviando_resena ? 'Enviando...' : 'Enviar reseña'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

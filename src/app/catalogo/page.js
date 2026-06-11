@@ -24,21 +24,14 @@ export default function PaginaDeCatalogo() {
   const [todos_los_productos, set_todos_los_productos] = useState([]);
   const [categorias_del_menu, set_categorias_del_menu] = useState([]);
   const [cargando_productos,  set_cargando_productos]  = useState(true);
+  const [categoria_elegida,   set_categoria_elegida]   = useState(parametros_de_url.get('categoria') || '');
+  const [texto_buscado,       set_texto_buscado]       = useState('');
+  const [precio_minimo,       set_precio_minimo]       = useState('');
+  const [precio_maximo,       set_precio_maximo]       = useState('');
 
-  const [categoria_elegida, set_categoria_elegida] = useState(parametros_de_url.get('categoria') || '');
-
-// Detecta cuando cambia el parámetro de la URL desde el Navbar
-useEffect(() => {
-  set_categoria_elegida(parametros_de_url.get('categoria') || '');
-}, [parametros_de_url]);
-
-// Detecta cuando cambia el parámetro de la URL (ej: al hacer click en Procesadores desde el Navbar)
-useEffect(() => {
-  set_categoria_elegida(parametros_de_url.get('categoria') || '');
-}, [parametros_de_url]);
-  const [texto_buscado,     set_texto_buscado]     = useState('');
-  const [precio_minimo,     set_precio_minimo]     = useState('');
-  const [precio_maximo,     set_precio_maximo]     = useState('');
+  useEffect(() => {
+    set_categoria_elegida(parametros_de_url.get('categoria') || '');
+  }, [parametros_de_url]);
 
   useEffect(() => {
     const traer_categorias = async () => {
@@ -184,14 +177,26 @@ useEffect(() => {
                     href={`/producto/${producto_de_la_grilla.slug}`}
                     className="bg-white rounded-xl shadow-sm hover:shadow-lg transition border border-gray-100 overflow-hidden group"
                   >
-                    <div className="bg-gradient-to-br from-blue-50 to-slate-100 h-44 flex items-center justify-center">
-                      <span className="text-6xl group-hover:scale-110 transition-transform duration-200">
-                        {iconos_de_categoria[producto_de_la_grilla.slug?.split('-')[0]] ||
-                         iconos_de_categoria[Object.keys(iconos_de_categoria).find(k =>
-                           producto_de_la_grilla.nombre_de_categoria?.toLowerCase().includes(k.split('-')[0])
-                         )] || '💻'}
-                      </span>
+                    {/* Imagen del producto */}
+                    <div className="bg-gradient-to-br from-blue-50 to-slate-100 h-44 flex items-center justify-center overflow-hidden">
+                      {producto_de_la_grilla.imagen ? (
+                        <img
+                          src={producto_de_la_grilla.imagen}
+                          alt={producto_de_la_grilla.nombre}
+                          className="h-full w-full object-contain p-4 group-hover:scale-105 transition-transform duration-200"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML =
+                              `<span style="font-size:3.5rem">${iconos_de_categoria[producto_de_la_grilla.nombre_de_categoria?.toLowerCase().replace(' ', '-')] || '💻'}</span>`;
+                          }}
+                        />
+                      ) : (
+                        <span className="text-6xl group-hover:scale-110 transition-transform duration-200">
+                          {iconos_de_categoria[categoria_elegida] || '💻'}
+                        </span>
+                      )}
                     </div>
+
                     <div className="p-4">
                       <p className="text-xs text-blue-600 font-medium mb-1">
                         {producto_de_la_grilla.nombre_de_categoria}
