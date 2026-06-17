@@ -274,12 +274,11 @@ function FormularioDeResena({ slug, on_resena_enviada }) {
 
     try {
       set_enviando_resena(true);
-      await clienteHttp.post('/api/resenas/crear/', {
-        producto_slug:      slug,
-        calificacion:       calificacion_elegida,
-        titulo_de_la_resena:  titulo_de_resena,
-        cuerpo_de_la_resena:  texto_de_resena,
-      });
+      await clienteHttp.post(`/api/resenas/${slug}/escribir/`, {
+  calificacion:        calificacion_elegida,
+  titulo_de_la_resena: titulo_de_resena,
+  cuerpo_de_la_resena: texto_de_resena,
+});
       set_es_error_resena(false);
       set_mensaje_resultado('¡Reseña enviada! Será visible una vez que sea aprobada.');
       set_calificacion_elegida(0);
